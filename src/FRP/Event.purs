@@ -12,7 +12,7 @@ import Prelude
 import Control.Alternative (class Alt, class Alternative, class Plus)
 import Control.Apply (lift2)
 import Data.Array (deleteBy)
-import Data.Either (either, fromLeft, fromRight, hush, isLeft, isRight)
+import Data.Either (Either(..), either, hush, isLeft, isRight)
 import Data.Compactable (class Compactable)
 import Data.Filterable (class Filterable, filterMap)
 import Data.Foldable (sequence_, traverse_)
@@ -41,6 +41,14 @@ newtype Event a = Event ((a -> Effect Unit) -> Effect (Effect Unit))
 
 instance functorEvent :: Functor Event where
   map f (Event e) = Event \k -> e (k <<< f)
+
+fromLeft :: ∀ a b. Partial => Either a b -> a
+fromLeft = case _ of
+  Left l -> l
+
+fromRight :: ∀ a b. Partial => Either a b -> b
+fromRight = case _ of
+  Right r -> r
 
 instance compactableEvent :: Compactable Event where
   compact xs = map (\x -> unsafePartial fromJust x) (filter isJust xs)
